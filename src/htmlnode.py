@@ -31,6 +31,14 @@ class LeafNode(HTMLNode):
             return self.value
         props_str = self.props_to_html() if self.props else ""
         return f"<{self.tag}{props_str}>{self.value}</{self.tag}>"
+    
+    def __eq__(self, other):
+        return (
+        self.tag == other.tag and
+        self.value == other.value and
+        self.props == other.props and
+        self.children == other.children
+    )
 
 
 class ParentNode(HTMLNode):
