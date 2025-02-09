@@ -32,5 +32,47 @@ def block_to_block_type(markdown):
         return block_type_olist
     
     return block_type_paragraph
+
+def block_type_to_tag(block_type, block_content):
+    split = block_content.split(' ', 1)
+    if block_type == block_type_paragraph:
+        return "p"
+
+    if block_type == block_type_heading:
+        return f"h{len(split[0])}"
+
+    if block_type == block_type_code:
+        return "code"
+
+    if block_type == block_type_quote:
+        return "blockquote"
+    
+    if block_type == block_type_ulist:
+        return "ul"
+    
+    if block_type == block_type_olist:
+        return "ol"
+
+def code_block_to_html_node(block_content):
+    lines = block_content.split("\n")
+    code_node = HTMLNode(tag="code", value='\n'.join(lines[1:-1]))
+    pre_node = HTMLNode(tag="pre", children=[code_node])
+    return pre_node
+
+
+def markdown_to_html_node(markdown):
+    blocks = markdown_to_blocks(markdown)
+    div_node = HTMLNode(tag="div", children=[])
+    for block in blocks:
+        block_type = block_to_block_type(block)
+        tag = block_type_to_tag(block_type, block)
+        if tag == "code":
+            node = code_block_to_html_node(block)
+            div_node.children.append(node)
+        else:
+            node = HTMLNode(tag=tag, value=block)
+            div_node.children.append(node)
+    return div_node
+
         
     
