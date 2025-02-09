@@ -63,7 +63,6 @@ def split_nodes_link(old_nodes):
         if not link_tuple:
             new_nodes.append(old_node)
             continue
-        
         remaining_text = old_node.text
         for link in link_tuple:
             sections = remaining_text.split(f"[{link[0]}]({link[1]})", 1)
@@ -74,3 +73,13 @@ def split_nodes_link(old_nodes):
         if remaining_text:
             new_nodes.append(TextNode(remaining_text, TextType.TEXT))
     return new_nodes   
+
+
+def text_to_textnodes(text):
+    nodes = [TextNode(text, TextType.TEXT)]
+    nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+    nodes = split_nodes_delimiter(nodes, "*", TextType.ITALIC)
+    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    return nodes
