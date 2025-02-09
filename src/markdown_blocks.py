@@ -1,3 +1,7 @@
+from inline_markdown import text_to_textnodes
+from textnode import text_node_to_html_node
+from htmlnode import HTMLNode, ParentNode
+
 block_type_paragraph = "paragraph"
 block_type_heading = "heading"
 block_type_code = "code"
@@ -56,23 +60,61 @@ def block_type_to_tag(block_type, block_content):
 def code_block_to_html_node(block_content):
     lines = block_content.split("\n")
     code_node = HTMLNode(tag="code", value='\n'.join(lines[1:-1]))
-    pre_node = HTMLNode(tag="pre", children=[code_node])
+    pre_node = ParentNode(tag="pre", children=[code_node])
     return pre_node
 
+def extract_text_from_block(block_type, block_content):
+    lines = block_content.split('\n')
+    split = block_content.split(' ', 1)
+    if block_type == block_type_heading:
+        return split[1]
+    if block_type == block_type_quote:
+        cleaned_lines = [line.lstrip(">").strip() for line in lines]
+        return ' '.join(cleaned_lines)
+    if block_type == block_type_ulist:
+        cleaned_lines = [line.removeprefix("* ").removeprefix("- ") for line in lines]
+        return cleaned_lines
+    if block_type == block_type_olist:
+        cleaned_lines = [line.removeprefix(f"{index + 1}. ") for index, line in enumerate(lines)]
+        return cleaned_lines
+    if block_type == block_type_paragraph:
+        return ' '.join(lines)
+
+
+def list_to_html(block_type, lines):
+    list_nodes = []
+    if block_type == block_type_ulist:
+        for line in lines:
+            list_nodes.append(ParentNode(tag="li", children=text_to_children(line)))
+        ul_node = ParentNode(tag="ul", children=list_nodes)
+        return ul_node
+    if block_type == block_type_olist:
+        for line in lines:
+            list_nodes.append(ParentNode(tag="li", children=text_to_children(line)))
+        ol_node = ParentNode(tag="ol", children=list_nodes)
+        return ol_node
+
+def text_to_children(text):
+    html_nodes = []
+    nodes = text_to_textnodes(text)
+    for node in nodes:
+        html_nodes.append(text_node_to_html_node(node))
+    return html_nodes
 
 def markdown_to_html_node(markdown):
     blocks = markdown_to_blocks(markdown)
-    div_node = HTMLNode(tag="div", children=[])
+    children = []
     for block in blocks:
         block_type = block_to_block_type(block)
         tag = block_type_to_tag(block_type, block)
+        cleaned_lines = extract_text_from_block(block_type, block)
         if tag == "code":
             node = code_block_to_html_node(block)
-            div_node.children.append(node)
+            children.append(node)
+        elif tag == "ul" or tag == "ol":
+            node = list_to_html(block_type, cleaned_lines)
+            children.append(node)
         else:
-            node = HTMLNode(tag=tag, value=block)
-            div_node.children.append(node)
-    return div_node
-
-        
-    
+            node = ParentNode(tag=tag, children=text_to_children(cleaned_lines))
+            children.append(node)
+    return ParentNode(tag="div", children=children)
