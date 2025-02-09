@@ -68,6 +68,8 @@ This is the same paragraph on a new line
         self.assertEqual(block_to_block_type(block), block_type_olist)
         block = "paragraph"
         self.assertEqual(block_to_block_type(block), block_type_paragraph)
+        block = "#"
+        self.assertEqual(block_to_block_type(block), block_type_paragraph)
 
 
 if __name__ == "__main__":

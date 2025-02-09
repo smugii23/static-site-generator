@@ -16,23 +16,20 @@ def block_to_block_type(markdown):
     lines = markdown.split('\n')
     first_word = split[0]
 
-    if len(split) < 2:
-        return block_type_paragraph
-
-    if len(first_word) <= 6 and set(first_word) == {"#"} and split[1]:
+    if len(first_word) <= 6 and set(first_word) == {"#"} and len(split) > 1:
         return block_type_heading
 
-    if markdown.startswith("```") and markdown.endswith("```") and len(markdown[3:-3].strip()) > 0:
+    if lines[0].startswith("```") and lines[-1].endswith("```") and len(lines) > 1:
         return block_type_code
 
     if all(line.startswith(">") for line in lines):
         return block_type_quote
 
     if all(line.startswith(("* ", "- ")) for line in lines):
-        return block_type_olist
+        return block_type_ulist
     
     if all(line.startswith(f"{index + 1}. ") for index, line in enumerate(lines)):
-        return block_type_ulist
+        return block_type_olist
     
     return block_type_paragraph
         
