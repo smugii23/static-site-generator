@@ -1,6 +1,6 @@
 from inline_markdown import text_to_textnodes
 from textnode import text_node_to_html_node
-from htmlnode import HTMLNode, ParentNode
+from htmlnode import HTMLNode, ParentNode, LeafNode
 
 block_type_paragraph = "paragraph"
 block_type_heading = "heading"
@@ -59,7 +59,7 @@ def block_type_to_tag(block_type, block_content):
 
 def code_block_to_html_node(block_content):
     lines = block_content.split("\n")
-    code_node = HTMLNode(tag="code", value='\n'.join(lines[1:-1]))
+    code_node = LeafNode(tag="code", value='\n'.join(lines[1:-1]))
     pre_node = ParentNode(tag="pre", children=[code_node])
     return pre_node
 

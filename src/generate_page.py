@@ -1,5 +1,5 @@
 from markdown_blocks import markdown_to_html_node
-from htmlnode import to_html
+from htmlnode import HTMLNode
 from extract_title import extract_title
 import os
 
